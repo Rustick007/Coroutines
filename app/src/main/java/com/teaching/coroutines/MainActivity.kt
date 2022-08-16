@@ -3,6 +3,7 @@ package com.teaching.coroutines
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.ProxyFileDescriptorCallback
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -15,7 +16,6 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private val handler = Handler()
     private fun loadData() {
 
         binding.progress.isVisible = true
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadCity(callback: (String) -> Unit) {
 
         thread {
-            handler.post {
+            Handler(Looper.getMainLooper()).post {
                 Thread.sleep(5000)
 
                 callback.invoke("Moscow")
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadTemperature(city: String, callback: (Int) -> Unit) {
         thread {
-            handler.post {
+            Handler(Looper.getMainLooper()).post {
 
                 Toast.makeText(
                     this,
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
             Thread.sleep(5000)
 
-            handler.post { callback.invoke(17) }
+            Handler(Looper.getMainLooper()).post { callback.invoke(17) }
 
 
         }
