@@ -2,6 +2,7 @@ package com.teaching.coroutines
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.os.ProxyFileDescriptorCallback
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -10,16 +11,18 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
-    private val binding by lazy{
+    private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private fun loadData(){
+    private val handler = Handler()
+    private fun loadData() {
+
         binding.progress.isVisible = true
         binding.buttonLoad.isEnabled = true
-        loadCity{
+        loadCity {
             binding.tvLocation.text = it
-            val temp = loadTemperature(it){
+            val temp = loadTemperature(it) {
                 binding.tvTemperature.text = it.toString()
                 binding.progress.isVisible = false
                 binding.buttonLoad.isEnabled = true
@@ -38,21 +41,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadCity(callback: (String) -> Unit){
+    private fun loadCity(callback: (String) -> Unit) {
+
         thread {
-            Thread.sleep(5000)
-            callback.invoke("Moscow")
+            handler.post {
+                Thread.sleep(5000)
+
+                callback.invoke("Moscow")
+            }
         }
+
 
     }
 
-    private fun loadTemperature(city: String, callback: (Int) -> Unit){
-        thread {      Toast.makeText(
-            this,
-            "Loading temperature for city: {city}",
-            Toast.LENGTH_SHORT
-        ).show()
-        callback.invoke(17)
+    private fun loadTemperature(city: String, callback: (Int) -> Unit) {
+        thread {
+            handler.post {
+
+                Toast.makeText(
+                    this,
+                    "Loading temperature for city: ${city}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            Thread.sleep(5000)
+
+            handler.post { callback.invoke(17) }
+
 
         }
 
