@@ -3,6 +3,7 @@ package com.teaching.coroutines
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.Message
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -13,6 +14,13 @@ class MainActivity : AppCompatActivity() {
 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
+    }
+
+    private val handler = object : Handler(){
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+            println("HANDLE_MSG  $msg")
+        }
     }
 
     private fun loadData() {
@@ -35,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         binding.buttonLoad.setOnClickListener {
             loadData()
         }
+        handler.sendMessage(Message.obtain(handler,0,17))
     }
 
     private fun loadCity(callback: (String) -> Unit) {
