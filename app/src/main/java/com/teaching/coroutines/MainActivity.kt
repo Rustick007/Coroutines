@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.buttonLoad.setOnClickListener {
             loadData()
+
         }
     }
 
