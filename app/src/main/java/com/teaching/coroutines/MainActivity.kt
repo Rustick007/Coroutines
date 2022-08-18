@@ -1,14 +1,14 @@
 package com.teaching.coroutines
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.teaching.coroutines.databinding.ActivityMainBinding
-import kotlin.concurrent.thread
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,60 +16,42 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private val handler = object : Handler(){
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-            println("HANDLE_MSG  $msg")
-        }
-    }
-
-    private fun loadData() {
-
+    private suspend fun loadData() {
+        Log.d("MainActivity", "Load started: $this")
         binding.progress.isVisible = true
         binding.buttonLoad.isEnabled = true
-        loadCity {
-            binding.tvLocation.text = it
-             loadTemperature(it) {
-                binding.tvTemperature.text = it.toString()
-                binding.progress.isVisible = false
-                binding.buttonLoad.isEnabled = true
-            }
-        }
+        val city = loadCity()
+        binding.tvLocation.text = city
+        val temperature = loadTemperature(city)
+        binding.tvTemperature.text = temperature.toString()
+        binding.progress.isVisible = false
+        binding.buttonLoad.isEnabled = true
+        Log.d("MainActivity","Load finished: $this")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.buttonLoad.setOnClickListener {
-            loadData()
-        }
-        handler.sendMessage(Message.obtain(handler,0,17))
-    }
-
-    private fun loadCity(callback: (String) -> Unit) {
-
-        thread {
-            runOnUiThread {
-                Thread.sleep(5000)
-
-                callback.invoke("Moscow")
-            }
+            lifecycleScope.launch { loadData() }
         }
     }
 
-    private fun loadTemperature(city: String, callback: (Int) -> Unit) {
-        thread {
-           runOnUiThread {
-               Toast.makeText(
-                    this,
-                    "Loading temperature for city: ${city}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+    private suspend fun loadCity(): String {
+        delay(5000)
+        return "Moscow"
+    }
 
-            Thread.sleep(5000)
+    private suspend fun loadTemperature(city: String): Int {
+        Toast.makeText(
+            this,
+            "Loading temperature for city: ${city}",
+            Toast.LENGTH_SHORT
+        ).show()
 
-            Handler(Looper.getMainLooper()).post { callback.invoke(17) }
-        }
+        delay(5000)
+        Thread.sleep(5000)
+
+        return 17
     }
 }
